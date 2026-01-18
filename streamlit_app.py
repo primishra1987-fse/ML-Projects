@@ -12,8 +12,45 @@ from typing import Tuple, List, Dict, Optional
 import time
 import streamlit as st
 
-# Load environment variables
+# Load environment variables from .env file (for local development)
 load_dotenv()
+
+# ============================================================
+# API KEY CONFIGURATION (supports both local and Streamlit Cloud)
+# ============================================================
+def get_openai_api_key():
+    """Get OpenAI API key from Streamlit secrets or environment variables."""
+    # First, try Streamlit secrets (for Streamlit Cloud deployment)
+    try:
+        if "OPENAI_API_KEY" in st.secrets:
+            return st.secrets["OPENAI_API_KEY"]
+    except Exception:
+        pass
+
+    # Fall back to environment variable (for local development)
+    api_key = os.getenv("OPENAI_API_KEY")
+    if api_key:
+        return api_key
+
+    return None
+
+# Set the API key in environment for LangChain to use
+api_key = get_openai_api_key()
+if api_key:
+    os.environ["OPENAI_API_KEY"] = api_key
+else:
+    st.error("⚠️ OpenAI API key not found! Please set it in Streamlit secrets or .env file.")
+    st.info("""
+    **For Streamlit Cloud:**
+    1. Go to your app settings
+    2. Click on 'Secrets'
+    3. Add: `OPENAI_API_KEY = "your-api-key-here"`
+
+    **For local development:**
+    1. Create a `.env` file
+    2. Add: `OPENAI_API_KEY=your-api-key-here`
+    """)
+    st.stop()
 
 # LangChain imports
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
