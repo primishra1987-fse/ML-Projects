@@ -2021,7 +2021,7 @@ def render_chat_page():
         st.markdown("### 🖼️ Related Movies")
 
         if st.session_state.posters:
-            for poster in st.session_state.posters[:5]:
+            for idx, poster in enumerate(st.session_state.posters[:5]):
                 with st.container():
                     st.markdown(f"""
                     <div class="movie-card">
@@ -2038,7 +2038,7 @@ def render_chat_page():
                             pass
 
                     # Add to watchlist button
-                    if st.button(f"➕ Add to Watchlist", key=f"add_{poster.get('title', '')[:10]}"):
+                    if st.button(f"➕ Add to Watchlist", key=f"add_poster_{idx}_{poster.get('title', '')[:10]}"):
                         if st.session_state.watchlist.add_to_watchlist(poster):
                             st.success("Added to watchlist!")
                         else:
@@ -2452,12 +2452,12 @@ def render_watchlist_page():
                     """, unsafe_allow_html=True)
 
                 with col2:
-                    if st.button("✅ Watched", key=f"watched_{i}"):
+                    if st.button("✅ Watched", key=f"watchlist_watched_{i}_{movie['title'][:8]}"):
                         watchlist.mark_as_watched(movie)
                         st.rerun()
 
                 with col3:
-                    if st.button("🗑️ Remove", key=f"remove_{i}"):
+                    if st.button("🗑️ Remove", key=f"watchlist_remove_{i}_{movie['title'][:8]}"):
                         watchlist.remove_from_watchlist(movie['title'])
                         st.rerun()
 
