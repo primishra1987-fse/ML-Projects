@@ -2176,12 +2176,12 @@ def render_trending_page():
     with tabs[0]:
         st.markdown("#### Top Rated Movies of All Time")
         movies = st.session_state.trending.get_top_rated(12)
-        display_movie_grid(movies)
+        display_movie_grid(movies, key_prefix="toprated")
 
     with tabs[1]:
         st.markdown("#### Recent High-Rated Movies (2015+)")
         movies = st.session_state.trending.get_recent(12)
-        display_movie_grid(movies)
+        display_movie_grid(movies, key_prefix="recent")
 
     with tabs[2]:
         st.markdown("#### Hidden Gems")
@@ -2189,7 +2189,7 @@ def render_trending_page():
         if st.button("🔄 Discover New Gems", key="refresh_gems"):
             st.rerun()
         movies = st.session_state.trending.get_hidden_gems(12)
-        display_movie_grid(movies)
+        display_movie_grid(movies, key_prefix="gems")
 
     with tabs[3]:
         st.markdown("#### Top Movies by Genre")
@@ -2200,7 +2200,7 @@ def render_trending_page():
             key="genre_select"
         )
         movies = st.session_state.trending.get_by_genre(genre, 12)
-        display_movie_grid(movies)
+        display_movie_grid(movies, key_prefix="genre")
 
     with tabs[4]:
         st.markdown("#### Top Movies by Decade")
@@ -2211,7 +2211,7 @@ def render_trending_page():
             key="decade_select"
         )
         movies = st.session_state.trending.get_by_decade(decade, 12)
-        display_movie_grid(movies)
+        display_movie_grid(movies, key_prefix="decade")
 
     with tabs[5]:
         st.markdown("#### Movies by Runtime")
@@ -2229,10 +2229,10 @@ def render_trending_page():
         else:
             movies = st.session_state.trending.get_top_rated(12)
 
-        display_movie_grid(movies)
+        display_movie_grid(movies, key_prefix="duration")
 
 
-def display_movie_grid(movies: List[Dict], cols_count: int = 4):
+def display_movie_grid(movies: List[Dict], cols_count: int = 4, key_prefix: str = "grid"):
     """Display movies in a responsive grid format."""
     cols = st.columns(cols_count)
 
@@ -2256,11 +2256,11 @@ def display_movie_grid(movies: List[Dict], cols_count: int = 4):
             # Action buttons
             col1, col2 = st.columns(2)
             with col1:
-                if st.button("➕", key=f"add_trend_{movie['title'][:10]}_{i}", help="Add to Watchlist"):
+                if st.button("➕", key=f"add_{key_prefix}_{i}", help="Add to Watchlist"):
                     if st.session_state.watchlist.add_to_watchlist(movie):
                         st.success("Added!")
             with col2:
-                if st.button("❤️", key=f"fav_trend_{movie['title'][:10]}_{i}", help="Add to Favorites"):
+                if st.button("❤️", key=f"fav_{key_prefix}_{i}", help="Add to Favorites"):
                     if st.session_state.watchlist.add_to_favorites(movie):
                         st.success("Favorited!")
 
@@ -2470,7 +2470,7 @@ def render_watchlist_page():
         favorites = watchlist.get_favorites()
 
         if favorites:
-            display_movie_grid(favorites, cols_count=4)
+            display_movie_grid(favorites, cols_count=4, key_prefix="favorites")
         else:
             st.info("No favorites yet. Mark movies as favorites to see them here!")
 
