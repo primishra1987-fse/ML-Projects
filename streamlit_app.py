@@ -2543,7 +2543,7 @@ def render_stats_page():
                 {"Agent": agent, "Queries": count}
                 for agent, count in stats['agent_usage'].items()
             ])
-            st.bar_chart(agent_df.set_index("Agent"))
+            st.bar_chart(agent_df, x="Agent", y="Queries")
         else:
             st.info("Start chatting to see agent usage statistics!")
 
@@ -2556,7 +2556,7 @@ def render_stats_page():
             {"Type": "Semantic Hits", "Count": cache_stats['semantic_hits']},
             {"Type": "Misses", "Count": cache_stats['misses']}
         ])
-        st.bar_chart(cache_df.set_index("Type"))
+        st.bar_chart(cache_df, x="Type", y="Count")
 
     st.markdown("---")
 
@@ -2575,26 +2575,31 @@ def render_stats_page():
                 genre_counts[genre] = genre_counts.get(genre, 0) + 1
 
         top_genres = dict(sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)[:10])
-        st.bar_chart(pd.DataFrame({"Count": top_genres}))
+        if top_genres:
+            genre_df = pd.DataFrame(list(top_genres.items()), columns=['Genre', 'Count'])
+            st.bar_chart(genre_df, x='Genre', y='Count')
 
     with col2:
         st.markdown("#### Rating Distribution")
-        rating_bins = pd.cut(df['IMDb Rating'], bins=[0, 5, 6, 7, 8, 9, 10])
+        rating_bins = pd.cut(df['IMDb Rating'].dropna(), bins=[0, 5, 6, 7, 8, 9, 10])
         rating_counts = rating_bins.value_counts().sort_index()
-        st.bar_chart(rating_counts)
+        rating_df = pd.DataFrame({'Rating': [str(x) for x in rating_counts.index], 'Count': rating_counts.values})
+        st.bar_chart(rating_df, x='Rating', y='Count')
 
     col1, col2 = st.columns(2)
 
     with col1:
         st.markdown("#### Movies by Decade")
-        df['Decade'] = (df['Year'] // 10) * 10
-        decade_counts = df['Decade'].value_counts().sort_index()
-        st.line_chart(decade_counts)
+        decade_series = (df['Year'].dropna() // 10 * 10).astype(int)
+        decade_counts = decade_series.value_counts().sort_index()
+        decade_df = pd.DataFrame({'Decade': decade_counts.index, 'Count': decade_counts.values})
+        st.line_chart(decade_df, x='Decade', y='Count')
 
     with col2:
         st.markdown("#### Top Directors (by # of movies)")
         director_counts = df['Director'].value_counts().head(10)
-        st.bar_chart(director_counts)
+        director_df = pd.DataFrame({'Director': director_counts.index, 'Movies': director_counts.values})
+        st.bar_chart(director_df, x='Director', y='Movies')
 
     st.markdown("---")
 
