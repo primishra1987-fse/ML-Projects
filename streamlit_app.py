@@ -1992,30 +1992,27 @@ def render_chat_page():
             if voice_input:
                 st.session_state.pending_query = voice_input
 
-        # Chat messages display
-        chat_container = st.container()
+        # Display chat history from session state
+        for msg in st.session_state.messages:
+            with st.chat_message(msg["role"]):
+                if msg["role"] == "assistant":
+                    if msg.get("agent"):
+                        st.markdown(f'<span class="agent-badge">🤖 {msg["agent"]}</span>', unsafe_allow_html=True)
+                    if msg.get("from_cache"):
+                        st.markdown('<span class="cache-hit">⚡ From Cache</span>', unsafe_allow_html=True)
+                    if msg.get("processing_time"):
+                        st.markdown(f'<span class="processing-time">Processed in {msg["processing_time"]}s</span>', unsafe_allow_html=True)
+                st.markdown(msg["content"])
 
-        with chat_container:
-            for msg in st.session_state.messages:
-                with st.chat_message(msg["role"]):
-                    if msg["role"] == "assistant":
-                        if "agent" in msg:
-                            st.markdown(f'<span class="agent-badge">🤖 {msg["agent"]}</span>', unsafe_allow_html=True)
-                        if msg.get("from_cache"):
-                            st.markdown('<span class="cache-hit">⚡ From Cache</span>', unsafe_allow_html=True)
-                        if "processing_time" in msg:
-                            st.markdown(f'<span class="processing-time">Processed in {msg["processing_time"]}s</span>', unsafe_allow_html=True)
-                    st.markdown(msg["content"])
-
-        # Handle pending query from quick buttons
-        if "pending_query" in st.session_state:
-            query = st.session_state.pending_query
-            del st.session_state.pending_query
-            process_chat_query(query)
-
-        # Chat input
+        # Chat input - this must come after displaying history
         if prompt := st.chat_input("Ask me anything about movies..."):
             process_chat_query(prompt)
+
+        # Handle pending query from quick buttons (after chat_input to maintain order)
+        if "pending_query" in st.session_state and st.session_state.pending_query:
+            query = st.session_state.pending_query
+            st.session_state.pending_query = None
+            process_chat_query(query)
 
     with col2:
         st.markdown("### 🖼️ Related Movies")
