@@ -1,10 +1,11 @@
-# IMDb Movie Chatbot - Requirements
+# IMDb Movie Chatbot - Enhanced Multi-Agent System
 # Install with: pip install -r requirements.txt
 
 # Core LangChain
 langchain>=0.1.0
 langchain-openai>=0.0.5
 langchain-community>=0.0.10
+langchain-text-splitters>=0.0.1
 
 # Vector Store
 faiss-cpu>=1.7.4
@@ -13,8 +14,9 @@ faiss-cpu>=1.7.4
 pandas>=2.0.0
 numpy>=1.24.0
 
-# UI
+# UI Frameworks
 gradio>=4.0.0
+streamlit>=1.28.0
 
 # Environment & API
 python-dotenv>=1.0.0
@@ -23,3 +25,6 @@ openai>=1.0.0
 # Jupyter
 jupyter>=1.0.0
 ipykernel>=6.0.0
+
+# Testing
+pytest>=7.0.0
